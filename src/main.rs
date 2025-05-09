@@ -1,10 +1,10 @@
-use std::fs;
+use std::{collections::HashMap, fs};
 
 fn main() {
     let input = fs::read_to_string("input").expect("No file.");
 
     let mut l: Vec<usize> = Vec::new();
-    let mut r: Vec<usize> = Vec::new();
+    let mut r = HashMap::new();
 
     for line in input.lines() {
         let item: Vec<usize> = line
@@ -13,14 +13,21 @@ fn main() {
             .collect();
 
         l.push(item[0]);
-        r.push(item[1]);
+
+        let count = r.entry(item[1]).or_insert(0);
+        *count += 1;
     }
 
-    l.sort();
-    r.sort();
+    let sum: usize = l
+        .iter()
+        .map(|x| {
+            let count = r.get(x);
+            match count {
+                Some(c) => x * c,
+                None => 0,
+            }
+        })
+        .sum();
 
-    let line = l.into_iter().zip(r);
-    let sum: usize = line.map(|x| x.0.abs_diff(x.1)).sum();
-
-    println!("{sum}");
+    println!("{sum:?}");
 }
