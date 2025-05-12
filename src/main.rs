@@ -1,33 +1,52 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 fn main() {
-    let input = fs::read_to_string("input").expect("No file.");
+    let input = fs::read_to_string("input-2").expect("No file.");
 
-    let mut l: Vec<usize> = Vec::new();
-    let mut r = HashMap::new();
+    let mut reports = 0;
 
     for line in input.lines() {
-        let item: Vec<usize> = line
+        let levels: Vec<usize> = line
             .split_whitespace()
             .filter_map(|x| x.parse::<usize>().ok())
             .collect();
 
-        l.push(item[0]);
-
-        let count = r.entry(item[1]).or_insert(0);
-        *count += 1;
+        if is_safe(&levels) {
+            reports += 1;
+        }
     }
 
-    let sum: usize = l
-        .iter()
-        .map(|x| {
-            let count = r.get(x);
-            match count {
-                Some(c) => x * c,
-                None => 0,
-            }
-        })
-        .sum();
+    println!("Number of safe reports::: {}", reports);
+}
 
-    println!("{sum:?}");
+fn is_safe(levels: &[usize]) -> bool {
+    let mut direction: Option<&str> = None;
+
+    for window in levels.windows(2) {
+        let a = window[0];
+        let b = window[1];
+
+        let diff = a.abs_diff(b);
+
+        if diff > 3 || diff < 1 {
+            return false;
+        }
+
+        let current_dir = if b > a {
+            Some("inc")
+        } else if b < a {
+            Some("dec")
+        } else {
+            return false;
+        };
+
+        if let Some(dir) = direction {
+            if dir != current_dir.unwrap() {
+                return false;
+            }
+        } else {
+            direction = current_dir;
+        }
+    }
+    return true;
 }
