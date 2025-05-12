@@ -13,6 +13,20 @@ fn main() {
 
         if is_safe(&levels) {
             reports += 1;
+        } else {
+            let mut safe_with_removal = false;
+            for i in 0..levels.len() {
+                let mut temp = levels.clone();
+                temp.remove(i);
+                if is_safe(&temp) {
+                    safe_with_removal = true;
+                    break;
+                }
+            }
+
+            if safe_with_removal {
+                reports += 1;
+            }
         }
     }
 
